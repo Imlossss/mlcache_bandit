@@ -2,11 +2,8 @@ TODO: Change LRU into a bandit algorithm.
 
 
 
-
-
-Here is the original README:
-
 -------------------------------------------------
+Here is the original README:
 
 # MLCache: A Multi-Armed Bandit Policy for an Operating System Page Cache
 by Renato Costa (renatomc@cs.ubc.ca) and Jose Pazos (jpazos@cs.ubc.ca)
