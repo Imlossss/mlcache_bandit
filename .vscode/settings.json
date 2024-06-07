@@ -6,5 +6,6 @@
     "math.h": "c",
     "stdlib.h": "c",
     "simple_cache.h": "c"
-  }
+  },
+  "C_Cpp.errorSquiggles": "disabled"
 }

@@ -8,6 +8,7 @@ struct UCB_struct
 	int numActions;
 	int trials;
 	int t;
+	int weights;
 	int *payoffSums;
 	int *numPlays;
 	int *ucbs;
@@ -22,6 +23,10 @@ void updateInCache(int actionToReward, struct Cache *cache);
 int pull(struct UCB_struct *ucb, struct Cache *cache);
 
 void updateUCB(struct UCB_struct *ucb);
+
+int getWeightAverage(struct Cache *cache);
+
+void updateUCBinCache(struct Cache *cache, int BlockNo, int by);
 
 #include "ucb1.c"
 
