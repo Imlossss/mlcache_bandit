@@ -1,0 +1,10 @@
+{
+  "files.associations": {
+    "*.pdf": "plaintext",
+    "string.h": "c",
+    "stdio.h": "c",
+    "math.h": "c",
+    "stdlib.h": "c",
+    "simple_cache.h": "c"
+  }
+}
