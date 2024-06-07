@@ -134,9 +134,7 @@ int readFromCacheUCB(int blockNo)
 	{
 		// block to read isn't in cache, get it from memory
 		// penalize blocks in cache
-
-		// updateInCache(-1, cache);
-		updateUCBinCache(cache, -1, by);
+		updateInCache(-1, cache);
 
 		cache->misses++;
 
@@ -147,9 +145,8 @@ int readFromCacheUCB(int blockNo)
 	{
 		// block to read is in cache
 		// reward referenced block, penalize others
+		updateInCache(cache->blocks_array[toRead], cache);
 
-		// updateInCache(cache->blocks_array[toRead], cache);
-		updateUCBinCache(cache, cache->blocks_array[toRead], by);
 		cache->hits++;
 	}
 	cache->reads++;
@@ -175,10 +172,15 @@ void resetCache()
 	cache->curr_size = 0;
 	cache->blocks = head;
 	cache->theUCB->weights = 0;
+	if (!cache->theUCB->numPlays)
+		free(cache->theUCB->numPlays);
 
-	free(cache->theUCB->numPlays);
-	free(cache->theUCB->payoffSums);
-	free(cache->theUCB->ucbs);
+	if (!cache->theUCB->payoffSums)
+		free(cache->theUCB->payoffSums);
+
+	if (!cache->theUCB->ucbs)
+		free(cache->theUCB->ucbs);
+
 	free(cache->theUCB);
 }
 void activateUCB(int maxBlockNo)
@@ -188,7 +190,7 @@ void activateUCB(int maxBlockNo)
 	cache->theUCB->numPlays = (int *)malloc(maxBlockNo * sizeof(int));
 	cache->theUCB->ucbs = (int *)malloc(maxBlockNo * sizeof(int));
 	cache->theUCB->weights = 0;
-	for (int i = 0; i < CACHE_SIZE; i++)
+	for (int i = 0; i < cache->cache_size; i++)
 	{
 		cache->theUCB->payoffSums[i] = 0;
 		cache->theUCB->numPlays[i] = 0;
@@ -199,9 +201,10 @@ void activateUCB(int maxBlockNo)
 void test1()
 {
 	// sequential reads, all misses;
-	activateUCB(10000);
+	int maxBlockNo = 10000;
+	activateUCB(maxBlockNo);
 
-	for (int i = 0; i < 10000; i++)
+	for (int i = 0; i < maxBlockNo; i++)
 	{
 		readFromCacheUCB(i);
 	}

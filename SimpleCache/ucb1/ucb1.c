@@ -7,7 +7,8 @@
 #include "ucb1.h"
 
 #define SCALEUP 100
-#define by 50
+
+#define BY 50
 
 int integerSqrt(int n)
 {
@@ -152,6 +153,9 @@ void updateUCBinCache(struct Cache *cache, int BlockNo, int by)
 			;
 		}
 	}
+
+	cache->theUCB->t += SCALEUP;
+	return;
 }
 
 // This function should be called after a cache hit, it does two things:
@@ -166,14 +170,11 @@ void updateInCache(int actionToReward, struct Cache *cache)
 
 		if (actionToReward != cacheBlock)
 		{
-
 			cache->theUCB->payoffSums[cacheBlock] += reward(cacheBlock, cache->theUCB->t, -1);
-			// cache->theUCB->payoffSums[cacheBlock] += -SCALEUP;
 		}
 		else
 		{
 			cache->theUCB->payoffSums[actionToReward] += reward(actionToReward, cache->theUCB->t, 1);
-			// cache->theUCB->numPlays[actionToReward] += SCALEUP;
 		}
 
 		cache->theUCB->t += SCALEUP;
