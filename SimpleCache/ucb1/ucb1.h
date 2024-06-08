@@ -9,14 +9,14 @@ struct UCB_struct
 	int trials;
 	int t;
 	int weights;
-	int *payoffSums;
+	// int *payoffSums;
 	int *numPlays;
 	int *ucbs;
 };
 
-int reward(double choice, double t, int hit);
+int updateUCBscores(int choice, int hit, struct Cache *cache);
 
-struct UCB_struct *ucb1(int numActions, int trials, struct Cache *cache /*might want to pass function pointer for reward in future*/);
+// struct UCB_struct *ucb1(int numActions, int trials, struct Cache *cache /*might want to pass function pointer for reward in future*/);
 
 void updateInCache(int actionToReward, struct Cache *cache);
 
@@ -26,7 +26,7 @@ void updateUCB(struct UCB_struct *ucb);
 
 int getWeightAverage(struct Cache *cache);
 
-void updateUCBinCache(struct Cache *cache, int BlockNo, int by);
+// void updateUCBinCache(struct Cache *cache, int BlockNo, int by);
 
 #include "ucb1.c"
 

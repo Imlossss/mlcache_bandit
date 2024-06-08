@@ -114,7 +114,7 @@ void writeToCacheUCB(int blockNo)
 {
 	// if cache is at limit size, evict block with lowest ucb
 	int toInsert = -1;
-	if (cache->curr_size == SCALEUP)
+	if (cache->curr_size == CACHE_SIZE)
 	{
 		toInsert = removeFromCacheUCB();
 		cache->curr_size--;
@@ -175,9 +175,6 @@ void resetCache()
 	if (!cache->theUCB->numPlays)
 		free(cache->theUCB->numPlays);
 
-	if (!cache->theUCB->payoffSums)
-		free(cache->theUCB->payoffSums);
-
 	if (!cache->theUCB->ucbs)
 		free(cache->theUCB->ucbs);
 
@@ -186,13 +183,14 @@ void resetCache()
 void activateUCB(int maxBlockNo)
 {
 	cache->theUCB = (struct UCB_struct *)malloc(sizeof(struct UCB_struct));
-	cache->theUCB->payoffSums = (int *)malloc(maxBlockNo * sizeof(int));
+	// cache->theUCB->payoffSums = (int *)malloc(maxBlockNo * sizeof(int));
 	cache->theUCB->numPlays = (int *)malloc(maxBlockNo * sizeof(int));
 	cache->theUCB->ucbs = (int *)malloc(maxBlockNo * sizeof(int));
 	cache->theUCB->weights = 0;
+	cache->theUCB->t = 0;
 	for (int i = 0; i < cache->cache_size; i++)
 	{
-		cache->theUCB->payoffSums[i] = 0;
+		// cache->theUCB->payoffSums[i] = 0;
 		cache->theUCB->numPlays[i] = 0;
 		cache->theUCB->ucbs[i] = 0;
 		cache->blocks_array[i] = -1;
@@ -205,9 +203,7 @@ void test1()
 	activateUCB(maxBlockNo);
 
 	for (int i = 0; i < maxBlockNo; i++)
-	{
 		readFromCacheUCB(i);
-	}
 
 	printf("sequential reads \n");
 	printf("All done, cache misses: %d, cache hits: %d, cache reads: %d, cache writes: %d \n\n", cache->misses, cache->hits, cache->reads, cache->writes);
@@ -222,9 +218,8 @@ void test2()
 	activateUCB(CACHE_SIZE);
 
 	for (int i = 0; i < 10000; i++)
-	{
 		readFromCacheUCB(i % cache->cache_size);
-	}
+
 	printf("looping size of cache \n");
 	printf("All done, cache misses: %d, cache hits: %d, cache reads: %d, cache writes: %d \n\n", cache->misses, cache->hits, cache->reads, cache->writes);
 
@@ -238,9 +233,8 @@ void test3()
 	int maxBlockNo = rand() * rand() % 1145;
 	activateUCB(maxBlockNo);
 	for (int i = 0; i < 10000; i++)
-	{
 		readFromCacheUCB(rand() % maxBlockNo);
-	}
+
 	printf("random reads \n");
 	printf("All done, cache misses: %d, cache hits: %d, cache reads: %d, cache writes: %d \n\n", cache->misses, cache->hits, cache->reads, cache->writes);
 

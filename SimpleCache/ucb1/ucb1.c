@@ -57,14 +57,23 @@ int integerLog(uint32_t v)
 int upperBound(int step, int numPlays)
 {
 	// indexing from 0
-	return integerSqrt(SCALEUP * SCALEUP * (2 * integerLog(step + 1) / numPlays));
+	if (step != 0 && numPlays != 0)
+		return integerSqrt(SCALEUP * SCALEUP * (2 * integerLog(step + 1) / numPlays));
+	return 0;
 }
 
 // TODO: this should take into account some kind of "popularity"
 // for the page throughout the learning stage
-int reward(double choice, double t, int hit)
+int updateUCBscores(int choice, int hit, struct Cache *cache)
 {
-	return SCALEUP * hit;
+	if (hit == -1)
+	{
+		cache->theUCB->ucbs[choice] = cache->theUCB->weights;
+	}
+	else
+	{
+		cache->theUCB->ucbs[choice] += upperBound(cache->theUCB->t - 1, cache->theUCB->numPlays[choice]) - upperBound(cache->theUCB->t, cache->theUCB->numPlays[choice]) * cache->theUCB->numPlays[choice];
+	}
 }
 
 int pull(struct UCB_struct *ucb, struct Cache *cache)
@@ -95,24 +104,14 @@ int pull(struct UCB_struct *ucb, struct Cache *cache)
 				action = cache->blocks_array[i];
 			}
 		}
+		ucb->t += SCALEUP;
 	}
-	int theReward = reward(action, ucb->t, 1);
+
+	ucb->ucbs[action] = updateUCBscores(action, 1, cache);
 	ucb->numPlays[action] += SCALEUP;
-	ucb->payoffSums[action] += theReward;
-	ucb->t += SCALEUP;
 	return action;
 }
 
-// old ucb
-void updateUCB(struct UCB_struct *ucb)
-{
-	// TODO: do we update all actions regardless of not being in cache?
-	int i = 0;
-	for (i = 0; i < ucb->numActions; i++)
-	{
-		ucb->ucbs[i] = -ucb->payoffSums[i] - upperBound(ucb->t, ucb->numPlays[i]) * ucb->numPlays[i];
-	}
-}
 // TODO
 int getWeightAverage(struct Cache *cache)
 {
@@ -128,103 +127,28 @@ int getWeightAverage(struct Cache *cache)
 		return SCALEUP * ans / (cache->curr_size * SCALEUP);
 }
 
-void updateUCBinCache(struct Cache *cache, int BlockNo, int by)
-{
-	if (BlockNo == -1)
-	{
-		cache->theUCB->weights = getWeightAverage(cache);
-		for (int i = 0; i < cache->cache_size; i++)
-		{
-			int tempBlockNo = cache->blocks_array[i];
-			cache->theUCB->ucbs[tempBlockNo] = cache->theUCB->weights;
-		}
-	}
-	else
-	{
-		cache->theUCB->ucbs[BlockNo] -= by;
-		cache->theUCB->ucbs[BlockNo] += upperBound(cache->theUCB->t - 1, cache->theUCB->numPlays[BlockNo]) - upperBound(cache->theUCB->t, cache->theUCB->numPlays[BlockNo]) * cache->theUCB->numPlays[BlockNo];
-		cache->theUCB->weights = getWeightAverage(cache);
-
-		for (int i = 0; i < cache->cache_size; i++)
-		{
-			int tempBlockNo = cache->blocks_array[i];
-			if (tempBlockNo != BlockNo)
-				cache->theUCB->ucbs[tempBlockNo] = cache->theUCB->weights;
-			;
-		}
-	}
-
-	cache->theUCB->t += SCALEUP;
-	return;
-}
-
 // This function should be called after a cache hit, it does two things:
 // decrease weight of blocks in cache that weren't referenced
 // increase weight of block in cache that was referenced
 void updateInCache(int actionToReward, struct Cache *cache)
 {
 	int i = 0;
+	cache->theUCB->weights = getWeightAverage(cache);
+
 	for (i = 0; i < cache->cache_size; i++)
 	{
 		int cacheBlock = cache->blocks_array[i];
-
+		if (cacheBlock == -1)
+			continue;
 		if (actionToReward != cacheBlock)
 		{
-			cache->theUCB->payoffSums[cacheBlock] += reward(cacheBlock, cache->theUCB->t, -1);
+			// cache->theUCB->payoffSums[cacheBlock] += reward(cacheBlock, cache->theUCB->t, -1);
+			cache->theUCB->ucbs[cacheBlock] = updateUCBscores(cacheBlock, -1, cache);
 		}
 		else
 		{
-			cache->theUCB->payoffSums[actionToReward] += reward(actionToReward, cache->theUCB->t, 1);
-		}
-
-		cache->theUCB->t += SCALEUP;
-	}
-}
-
-// initialize the UCB
-struct UCB_struct *ucb1(int numActions, int trials, struct Cache *cache /*might want to pass function pointer for reward in the future*/)
-{
-	trials += numActions;
-	struct UCB_struct *newUCB = (struct UCB_struct *)malloc(sizeof(struct UCB_struct));
-	newUCB->numActions = numActions;
-	newUCB->trials = trials;
-	newUCB->payoffSums = (int *)malloc(numActions * sizeof(int));
-	newUCB->numPlays = (int *)malloc(numActions * sizeof(int));
-	newUCB->ucbs = (int *)malloc(numActions * sizeof(int));
-
-	int i = 0;
-	for (i = 0; i < newUCB->numActions; i++)
-	{
-		newUCB->payoffSums[i] = 0;
-		newUCB->numPlays[i] = 1;
-		newUCB->ucbs[i] = 0;
-	}
-
-	newUCB->t = 0;
-	// initialize empirical sums
-	for (newUCB->t = 0; i < numActions; newUCB->t++)
-	{
-		newUCB->payoffSums[newUCB->t] = 0;
-	}
-
-	newUCB->t = numActions;
-	cache->theUCB = newUCB;
-
-	while (newUCB->t < trials * SCALEUP)
-	{
-		updateInCache(0, cache);
-		updateUCB(newUCB);
-		// pull(newUCB, 0);
-	}
-
-	printf("Probabilities are: [");
-	for (i = 0; i < numActions; i++)
-	{
-		printf("%d", newUCB->ucbs[i]);
-		if (i != newUCB->numActions - 1)
-		{
-			printf(", ");
+			// cache->theUCB->payoffSums[actionToReward] += reward(actionToReward, cache->theUCB->t, 1);
+			cache->theUCB->ucbs[cacheBlock] + updateUCBscores(actionToReward, 1, cache);
 		}
 	}
-	printf("]\n");
 }
