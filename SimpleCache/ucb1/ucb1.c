@@ -1,8 +1,3 @@
-#include <stdio.h>
-#include <math.h>
-#include <time.h>
-#include <stdlib.h>
-#include <stdint.h>
 
 #include "ucb1.h"
 
@@ -69,7 +64,8 @@ int updateUCBscores(int choice, int hit, struct Cache *cache)
 	}
 	else
 	{
-		cache->theUCB->ucbs[choice] += upperBound(cache->theUCB->t - 1, cache->theUCB->numPlays[choice]) - upperBound(cache->theUCB->t, cache->theUCB->numPlays[choice]) * cache->theUCB->numPlays[choice] - BY;
+		cache->theUCB->ucbs[choice] -= BY;
+		cache->theUCB->ucbs[choice] += upperBound(cache->theUCB->t - 1, cache->theUCB->numPlays[choice]) - upperBound(cache->theUCB->t, cache->theUCB->numPlays[choice]) * cache->theUCB->numPlays[choice];
 	}
 }
 
@@ -112,6 +108,10 @@ int pull(struct UCB_struct *ucb, struct Cache *cache)
 // TODO
 void getWeightAverage(struct Cache *cache)
 {
+	int *cnt = (int *)malloc(ADDRESS_SPACE * sizeof(int));
+	for (int i = 0; i < ADDRESS_SPACE; i++)
+		cnt[i] = 0;
+
 	for (int i = 0; i < ADDRESS_SPACE; i++)
 		cache->theUCB->weights[i] = 0;
 
@@ -122,12 +122,17 @@ void getWeightAverage(struct Cache *cache)
 			int tempBlockNo = cache->blocks_array[i];
 			int address_space_number = tempBlockNo % ADDRESS_SPACE;
 			cache->theUCB->weights[address_space_number] += cache->theUCB->ucbs[i];
+			cnt[address_space_number]++;
 		}
 	}
 	if (cache->curr_size > 0)
 		for (int i = 0; i < ADDRESS_SPACE; i++)
-			cache->theUCB->weights[i] = cache->theUCB->weights[i] / cache->curr_size;
+			if (cnt[i] == 0)
+				cache->theUCB->weights[i] = 0;
+			else
+				cache->theUCB->weights[i] = cache->theUCB->weights[i] / cnt[i];
 
+	free(cnt);
 	return;
 }
 

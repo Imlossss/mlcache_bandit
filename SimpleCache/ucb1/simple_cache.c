@@ -190,7 +190,6 @@ void activateUCB(int maxBlockNo)
 	cache->theUCB = (struct UCB_struct *)malloc(sizeof(struct UCB_struct));
 	cache->theUCB->numPlays = (int *)malloc(maxBlockNo * sizeof(int));
 	cache->theUCB->ucbs = (int *)malloc(maxBlockNo * sizeof(int));
-
 	cache->theUCB->weights = (int *)malloc(ADDRESS_SPACE * sizeof(int));
 	cache->theUCB->t = 0;
 
@@ -201,8 +200,9 @@ void activateUCB(int maxBlockNo)
 	{
 		cache->theUCB->numPlays[i] = 0;
 		cache->theUCB->ucbs[i] = 0;
-		cache->blocks_array[i] = -1;
 	}
+	for (int i = 0; i < CACHE_SIZE; i++)
+		cache->blocks_array[i] = -1;
 
 	return;
 }
