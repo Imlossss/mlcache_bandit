@@ -143,7 +143,7 @@ void updateInCache(int actionToReward, struct Cache *cache)
 {
 	int i = 0;
 	getWeightAverage(cache);
-
+	int address_space_number = actionToReward % ADDRESS_SPACE;
 	for (i = 0; i < cache->cache_size; i++)
 	{
 		int cacheBlock = cache->blocks_array[i];
@@ -151,8 +151,9 @@ void updateInCache(int actionToReward, struct Cache *cache)
 			continue;
 		if (actionToReward != cacheBlock)
 		{
-			// cache->theUCB->payoffSums[cacheBlock] += reward(cacheBlock, cache->theUCB->t, -1);
-			cache->theUCB->ucbs[cacheBlock] = updateUCBscores(cacheBlock, -1, cache);
+			if (address_space_number == cacheBlock % ADDRESS_SPACE)
+				// cache->theUCB->payoffSums[cacheBlock] += reward(cacheBlock, cache->theUCB->t, -1);
+				cache->theUCB->ucbs[cacheBlock] = updateUCBscores(cacheBlock, -1, cache);
 		}
 		else
 		{
