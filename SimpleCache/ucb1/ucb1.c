@@ -72,7 +72,7 @@ int updateUCBscores(int choice, int hit, struct Cache *cache)
 	}
 	else
 	{
-		cache->theUCB->ucbs[choice] += upperBound(cache->theUCB->t - 1, cache->theUCB->numPlays[choice]) - upperBound(cache->theUCB->t, cache->theUCB->numPlays[choice]) * cache->theUCB->numPlays[choice];
+		cache->theUCB->ucbs[choice] += upperBound(cache->theUCB->t - 1, cache->theUCB->numPlays[choice]) - upperBound(cache->theUCB->t, cache->theUCB->numPlays[choice]) * cache->theUCB->numPlays[choice] - BY;
 	}
 }
 
@@ -148,7 +148,7 @@ void updateInCache(int actionToReward, struct Cache *cache)
 		else
 		{
 			// cache->theUCB->payoffSums[actionToReward] += reward(actionToReward, cache->theUCB->t, 1);
-			cache->theUCB->ucbs[cacheBlock] + updateUCBscores(actionToReward, 1, cache);
+			cache->theUCB->ucbs[cacheBlock] = updateUCBscores(actionToReward, 1, cache);
 		}
 	}
 }
