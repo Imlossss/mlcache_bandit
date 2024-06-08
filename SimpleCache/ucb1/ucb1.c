@@ -6,10 +6,6 @@
 
 #include "ucb1.h"
 
-#define SCALEUP 100
-
-#define BY 50
-
 int integerSqrt(int n)
 {
 	int smallCandidate;
@@ -68,7 +64,8 @@ int updateUCBscores(int choice, int hit, struct Cache *cache)
 {
 	if (hit == -1)
 	{
-		cache->theUCB->ucbs[choice] = cache->theUCB->weights;
+		int address_space_number = choice % ADDRESS_SPACE;
+		cache->theUCB->ucbs[choice] = cache->theUCB->weights[address_space_number];
 	}
 	else
 	{
@@ -113,18 +110,25 @@ int pull(struct UCB_struct *ucb, struct Cache *cache)
 }
 
 // TODO
-int getWeightAverage(struct Cache *cache)
+void getWeightAverage(struct Cache *cache)
 {
-	int ans = 0;
+	for (int i = 0; i < ADDRESS_SPACE; i++)
+		cache->theUCB->weights[i] = 0;
+
 	for (int i = 0; i < cache->cache_size; i++)
 	{
 		if (cache->blocks_array[i] != -1)
-			ans += cache->theUCB->ucbs[i];
+		{
+			int tempBlockNo = cache->blocks_array[i];
+			int address_space_number = tempBlockNo % ADDRESS_SPACE;
+			cache->theUCB->weights[address_space_number] += cache->theUCB->ucbs[i];
+		}
 	}
-	if (cache->curr_size == 0)
-		return 0;
-	else
-		return SCALEUP * ans / (cache->curr_size * SCALEUP);
+	if (cache->curr_size > 0)
+		for (int i = 0; i < ADDRESS_SPACE; i++)
+			cache->theUCB->weights[i] = cache->theUCB->weights[i] / cache->curr_size;
+
+	return;
 }
 
 // This function should be called after a cache hit, it does two things:
@@ -133,7 +137,7 @@ int getWeightAverage(struct Cache *cache)
 void updateInCache(int actionToReward, struct Cache *cache)
 {
 	int i = 0;
-	cache->theUCB->weights = getWeightAverage(cache);
+	getWeightAverage(cache);
 
 	for (i = 0; i < cache->cache_size; i++)
 	{

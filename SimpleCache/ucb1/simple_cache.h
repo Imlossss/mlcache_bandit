@@ -2,6 +2,7 @@
 #define _simple_cache
 
 #define CACHE_SIZE 100
+#define ADDRESS_SPACE 8
 
 // Node for doubly-linked list
 struct Node

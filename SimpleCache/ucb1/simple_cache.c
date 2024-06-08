@@ -165,36 +165,46 @@ void resetCache()
 	}
 	head = NULL;
 	tail = NULL;
+
 	cache->hits = 0;
 	cache->misses = 0;
 	cache->reads = 0;
 	cache->writes = 0;
 	cache->curr_size = 0;
 	cache->blocks = head;
-	cache->theUCB->weights = 0;
+
 	if (!cache->theUCB->numPlays)
 		free(cache->theUCB->numPlays);
 
 	if (!cache->theUCB->ucbs)
 		free(cache->theUCB->ucbs);
 
+	if (!cache->theUCB->weights)
+		free(cache->theUCB->weights);
+
 	free(cache->theUCB);
 }
 void activateUCB(int maxBlockNo)
 {
+	// 我们假设编号为 i 的 page 位于编号为 i % ADDRESS_SPACE 的进程树下
 	cache->theUCB = (struct UCB_struct *)malloc(sizeof(struct UCB_struct));
-	// cache->theUCB->payoffSums = (int *)malloc(maxBlockNo * sizeof(int));
 	cache->theUCB->numPlays = (int *)malloc(maxBlockNo * sizeof(int));
 	cache->theUCB->ucbs = (int *)malloc(maxBlockNo * sizeof(int));
-	cache->theUCB->weights = 0;
+
+	cache->theUCB->weights = (int *)malloc(ADDRESS_SPACE * sizeof(int));
 	cache->theUCB->t = 0;
-	for (int i = 0; i < cache->cache_size; i++)
+
+	for (int i = 0; i < ADDRESS_SPACE; i++)
+		cache->theUCB->weights[i] = 0;
+
+	for (int i = 0; i < maxBlockNo; i++)
 	{
-		// cache->theUCB->payoffSums[i] = 0;
 		cache->theUCB->numPlays[i] = 0;
 		cache->theUCB->ucbs[i] = 0;
 		cache->blocks_array[i] = -1;
 	}
+
+	return;
 }
 void test1()
 {

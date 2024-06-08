@@ -3,13 +3,15 @@
 
 #include "simple_cache.h"
 
+#define SCALEUP 100
+#define BY 50
+
 struct UCB_struct
 {
 	int numActions;
 	int trials;
 	int t;
-	int weights;
-	// int *payoffSums;
+	int *weights;
 	int *numPlays;
 	int *ucbs;
 };
@@ -24,7 +26,7 @@ int pull(struct UCB_struct *ucb, struct Cache *cache);
 
 void updateUCB(struct UCB_struct *ucb);
 
-int getWeightAverage(struct Cache *cache);
+void getWeightAverage(struct Cache *cache);
 
 // void updateUCBinCache(struct Cache *cache, int BlockNo, int by);
 
