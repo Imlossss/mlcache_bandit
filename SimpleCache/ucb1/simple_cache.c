@@ -171,6 +171,8 @@ void resetCache()
 	cache->writes = 0;
 	cache->curr_size = 0;
 	cache->blocks = head;
+	for (int i = 0; i < CACHE_SIZE; i++)
+		cache->blocks_array[i] = -1;
 
 	if (!cache->theUCB->numPlays)
 		free(cache->theUCB->numPlays);
@@ -200,8 +202,6 @@ void activateUCB(int maxBlockNo)
 		cache->theUCB->numPlays[i] = 0;
 		cache->theUCB->ucbs[i] = 0;
 	}
-	for (int i = 0; i < CACHE_SIZE; i++)
-		cache->blocks_array[i] = -1;
 
 	return;
 }
@@ -262,6 +262,8 @@ int main()
 	cache->cache_size = CACHE_SIZE;
 	cache->curr_size = 0;
 	cache->blocks = head;
+	for (int i = 0; i < CACHE_SIZE; i++)
+		cache->blocks_array[i] = -1;
 
 	test1();
 	test2();
