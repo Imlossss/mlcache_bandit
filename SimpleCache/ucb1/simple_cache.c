@@ -5,7 +5,6 @@
 
 #include "simple_cache.h"
 #include "ucb1.h"
-// 这里我模拟单个address space下的page替换情况
 struct Cache *cache; // global cache
 struct Node *head;	 // global head of list
 struct Node *tail;	 // global tail of list
