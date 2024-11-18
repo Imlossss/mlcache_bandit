@@ -744,6 +744,7 @@ static int __remove_mapping(struct address_space *mapping, struct page *page,
 
 #ifdef CONFIG_MLCACHE_ACTIVE
 				page->mlcache_plays += 100;
+				page->f = 0;
 #endif
 				shadow = workingset_eviction(mapping, page);
 		}

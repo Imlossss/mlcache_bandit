@@ -9,6 +9,9 @@
 #define MLCACHE_HIT (0)
 #define MLCACHE_MISS (1)
 
+#define MAX_ARMS (3)
+#define MAX_BLOCK (100) /* todo */
+
 DECLARE_TRACE(mlcache_event,
 				TP_PROTO(pgoff_t offset, pid_t pid, struct page *page, struct address_space *mapping, bool hit),
 				TP_ARGS(offset, pid, page, mapping, hit));

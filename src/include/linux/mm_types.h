@@ -223,6 +223,9 @@ struct page {
 #ifdef CONFIG_MLCACHE_ACTIVE
 	long mlcache_score;
 	unsigned long mlcache_plays;
+	long lru_mlcache;
+	long fifo;
+	int f; // if f == -1 means that it get hit
 #endif
 }
 /*
