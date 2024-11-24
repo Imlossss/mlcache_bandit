@@ -43,9 +43,10 @@ static void update_arms_score(bool hit)
 {
 	int round = t / MAX_ARMS;
 	int numUse = cnt[arms];
+	int f = 1 + round * ilog2(round) * ilog2(round);
 
 	if (hit)
-		arms_scores[arms] += int_sqrt(2 * ilog2(round) / numUse);
+		arms_scores[arms] += int_sqrt(2 * f / numUse);
 	/* TO DO */
 }
 static void page_mlscores_change(struct page *p)
