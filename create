@@ -1,0 +1,13 @@
+#!/bin/bash
+# Variables
+IMG=disk.img
+DIR=mount-point.dir
+RELEASE=jammy
+qemu-img create $IMG 5G
+mkfs.ext4 $IMG
+mkdir -p $DIR
+sudo mount -o loop $IMG $DIR
+sudo debootstrap --arch amd64 $RELEASE $DIR https://mirrors.tuna.tsinghua.edu.cn/ubuntu/
+sudo umount $DIR
+rmdir $DIR
+echo "Disk image $IMG created and base system installed for Ubuntu $RELEASE using Tsinghua mirror."
