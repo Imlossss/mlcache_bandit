@@ -1,2 +1,0 @@
-qemu-system-x86_64 -kernel src/arch/x86/boot/bzImage -hda disk.img -smp 2 -m 500M --append "console-ttyS0 root=/dev/sda"
-
