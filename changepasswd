@@ -1,7 +1,0 @@
-mkdir -p mount-point.dir
-sudo mount -o loop disk.img mount-point.dir
-cd mount-point.dir
-sudo chroot .
-passwd
-sudo umount $DIR
-rmdir $DIR
